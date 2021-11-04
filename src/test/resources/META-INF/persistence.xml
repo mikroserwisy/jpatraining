@@ -5,6 +5,7 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <class>pl.training.jpa.Account</class>
         <class>pl.training.jpa.Payment</class>
+        <class>pl.training.jpa.Post</class>
         <class>pl.training.jpa.Comment</class>
         <class>pl.training.jpa.Person</class>
         <properties>
@@ -17,6 +18,7 @@
             <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.connection.provider_class" value="com.zaxxer.hikari.hibernate.HikariConnectionProvider"/>
             <property name="hibernate.hikari.maximumPoolSize" value="10"/>
+            <property name="hibernate.generate_statistics" value="true"/>
         </properties>
     </persistence-unit>
 </persistence>

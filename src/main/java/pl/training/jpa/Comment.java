@@ -16,7 +16,7 @@ public class Comment implements Identifiable<Long> {
     @Id
     private Long id;
     @Lob
-    private String value;
+    private String text;
 
     @Override
     public boolean equals(Object other) {

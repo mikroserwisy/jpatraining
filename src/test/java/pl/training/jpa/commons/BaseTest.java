@@ -1,5 +1,7 @@
 package pl.training.jpa.commons;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.AfterAll;
 
 import javax.persistence.EntityManager;
@@ -10,6 +12,7 @@ import java.util.function.Consumer;
 public class BaseTest {
 
     protected final static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("training-hibernate-unit");
+    protected final Statistics statistics = entityManagerFactory.unwrap(SessionFactory.class).getStatistics();
 
     protected void withTransaction(Consumer<EntityManager> task) {
         var entityManager = entityManagerFactory.createEntityManager();
@@ -21,8 +24,10 @@ public class BaseTest {
         } catch (Exception exception) {
             exception.printStackTrace();
             transaction.rollback();
+            throw exception;
+        } finally {
+            entityManager.close();
         }
-        entityManager.close();
     }
 
     @AfterAll

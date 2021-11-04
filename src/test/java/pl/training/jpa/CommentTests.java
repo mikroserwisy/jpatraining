@@ -7,7 +7,7 @@ public class CommentTests extends EntityTest<Comment> {
     @Override
     protected Comment initializeEntity() {
         var comment = new Comment();
-        comment.setValue("My comment");
+        comment.setText("My comment");
         return comment;
     }
 
