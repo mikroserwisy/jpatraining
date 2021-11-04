@@ -1,7 +1,6 @@
 package pl.training.jpa.commons;
 
 import org.hibernate.Session;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.training.jpa.Identifiable;
@@ -14,6 +13,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+// https://vladmihalcea.com/hibernate-facts-equals-and-hashcode
+// https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier
 public abstract class EntityTest<E extends Identifiable> extends BaseTest{
 
     protected final Set<E> entities = new HashSet<>();

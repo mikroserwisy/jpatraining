@@ -6,6 +6,7 @@
         <class>pl.training.jpa.Account</class>
         <class>pl.training.jpa.Payment</class>
         <class>pl.training.jpa.Comment</class>
+        <class>pl.training.jpa.Person</class>
         <properties>
             <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/training"/>
             <property name="javax.persistence.jdbc.user" value="admin"/>
