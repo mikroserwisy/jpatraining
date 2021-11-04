@@ -1,0 +1,30 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:13-alpine
+    ports:
+    - "5432:5432"
+    environment:
+      - POSTGRES_DB=training
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - PGDATA=/database
+    command: ["postgres", "-c", "log_statement=all"]
+#    volumes:
+#    - ./data/postgres:/database
+  mariadb:
+    image: mariadb
+    ports:
+    - "3306:3306"
+    environment:
+      - MARIADB_USER=admin
+      - MARIADB_PASSWORD=admin
+      - MARIADB_DATABASE=training
+      - MARIADB_ROOT_PASSWORD=root
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+    - 8000:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@training.pl
+      - PGADMIN_DEFAULT_PASSWORD=admin
