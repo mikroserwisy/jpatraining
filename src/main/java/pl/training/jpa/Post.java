@@ -11,12 +11,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+@NamedEntityGraph(name = Post.WITH_COMMENTS, attributeNodes = {
+        @NamedAttributeNode("comments")
+})
+@NamedQuery(name = Post.GET_ALL_EAGER, query = "select p from Post p join fetch p.comments pc")
 @Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Post {
+
+    public static final String GET_ALL_EAGER = "POSTS_GET_ALL_EAGER";
+    public static final String WITH_COMMENTS = "POSTS_WITH_COMMENTS";
 
     @GeneratedValue
     @Id

@@ -7,10 +7,12 @@ import org.junit.jupiter.api.Test;
 import pl.training.jpa.commons.BaseTest;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static pl.training.jpa.Fixtures.*;
+import static pl.training.jpa.Post.GET_ALL_EAGER;
 
 @Log
 public class EntityManagerTests extends BaseTest {
@@ -108,6 +110,37 @@ public class EntityManagerTests extends BaseTest {
         withTransaction(entityManager -> loadedPost = entityManager.find(Post.class, post.getId()));
         var comments = loadedPost.getComments();
         assertThrows(LazyInitializationException.class, () -> comments.forEach(comment -> log.info("Comment: " + comment.getText())));
+    }
+
+    @Test
+    void should_eagerly_load_comments_with_fetch() {
+        withTransaction(entityManager -> {
+            entityManager.persist(post);
+            entityManager.persist(firstComment);
+            entityManager.persist(secondComment);
+        });
+        //withTransaction(entityManager -> entityManager.createQuery("select p from Post p join fetch p.comments pc", Post.class).getResultList());
+        withTransaction(entityManager -> entityManager.createNamedQuery(GET_ALL_EAGER, Post.class).getResultList());
+        assertEquals(3, statistics.getEntityLoadCount());
+    }
+
+    @Test
+    void should_eagerly_load_comments_using_named_entity_graph() {
+        withTransaction(entityManager -> {
+            entityManager.persist(post);
+            entityManager.persist(firstComment);
+            entityManager.persist(secondComment);
+        });
+        withTransaction(entityManager -> {
+            var graph = entityManager.createEntityGraph(Post.class);
+            graph.addAttributeNodes("comments");
+            // wszystko co jest wymienione jest ładowane zachłannie, pozostałe pola leniwie
+            //Map<String, Object> properties = Map.of("javax.persistence.fetchgraph", entityManager.getEntityGraph(Post.WITH_COMMENTS));
+            // wszystko co jest wymienione jest ładowane zachłannie, pozostałe pola zgodnie z ustawieniami na poziomie relacji
+            Map<String, Object> properties = Map.of("javax.persistence.loadgraph", graph);
+            entityManager.find(Post.class, post.getId(), properties);
+        });
+        assertEquals(3, statistics.getEntityLoadCount());
     }
 
 }
