@@ -5,14 +5,15 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.javamoney.moneta.FastMoney;
 
 @Table(name = "PAYMENTS")
 @Entity
 @Builder
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class Payment {
@@ -33,5 +34,7 @@ public class Payment {
     private PaymentStatus status;
     @Transient
     private UUID transactionId;
+    @Version
+    private Long version;
 
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.training.jpa.commons.BaseTest;
 
+import javax.persistence.LockModeType;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -148,18 +149,16 @@ public class EntityManagerTests extends BaseTest {
 
     @Test
     void should_return_metrics_for_adding_payments_in_single_transaction() {
+        var timer = metricRegistry.timer(getClass().getName());
         var startTime = System.nanoTime();
-        withTransaction(entityManager -> {
-            for (long sample = 1; sample <= SAMPLES; sample++) {
-                var payment = Fixtures.payment(1_000L);
-                entityManager.persist(payment);
-            }
-        });
-        log.info("Time: " + ((System.nanoTime() - startTime) / 1_000.0)); // 1.91023565E7
+        preparePayments();
+        timer.update(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
+        reporter.report();
     }
 
     @Test
     void should_return_metrics_for_adding_payments_in_many_transaction() {
+        var timer = metricRegistry.timer(getClass().getName());
         var startTime = System.nanoTime();
         for (long sample = 1; sample <= SAMPLES; sample++) {
             withTransaction(entityManager -> {
@@ -167,10 +166,68 @@ public class EntityManagerTests extends BaseTest {
                 entityManager.persist(payment);
             });
         }
-        log.info("Time: " + ((System.nanoTime() - startTime) / 1_000.0)); // 3.503541425E7
+        timer.update(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
+        reporter.report();
     }
 
+    @Test
+    void should_return_metrics_for_updating_payments_in_many_transaction() {
+        preparePayments();
+        var timer = metricRegistry.timer(getClass().getName());
+        var startTime = System.nanoTime();
+        withTransaction(entityManager -> {
+            var pageSize = 1_000;
+            for (int page = 1; page < (SAMPLES / pageSize); page++) {
+                entityManager.createQuery("select p from Payment p", Payment.class)
+                        .setFirstResult(page * pageSize)
+                        .setMaxResults(pageSize)
+                        .getResultList()
+                        .forEach(payment -> {
+                            payment.getValue().add(LocalMoney.of(10));
+                            entityManager.merge(payment);
+                            entityManager.flush();
+                        });
+                entityManager.clear();
+            }
+        });
+        timer.update(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
+        reporter.report();
+    }
 
+    @Test
+    void should_return_metrics_for_updating_payments_in_one_update() {
+        preparePayments();
+        var timer = metricRegistry.timer(getClass().getName());
+        var startTime = System.nanoTime();
+        withTransaction(entityManager -> {
+            entityManager.createQuery("update Payment p set p.value = :value")
+                    .setParameter("value", LocalMoney.of(500))
+                    .executeUpdate();
+        });
+        timer.update(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
+        reporter.report();
+    }
 
+    @Test
+    void locking_test() {
+        var payment = payment(1_000L);
+        withTransaction(entityManager -> entityManager.persist(payment));
+        var firstTask = new UpdatePaymentTask(payment.getId(), LocalMoney.of(100), 1, 10, LockModeType.PESSIMISTIC_WRITE);
+        var secondTask = new UpdatePaymentTask(payment.getId(), LocalMoney.of(200), 3, 5, LockModeType.PESSIMISTIC_READ);
+        execute(List.of(firstTask, secondTask));
+        withTransaction(entityManager -> {
+            var persistedPayment = entityManager.find(Payment.class, payment.getId());
+            log.info(persistedPayment.toString());
+        });
+    }
+
+    private void preparePayments() {
+        withTransaction(entityManager -> {
+            for (long sample = 1; sample <= SAMPLES; sample++) {
+                var payment = Fixtures.payment(1_000L);
+                entityManager.persist(payment);
+            }
+        });
+    }
 
 }

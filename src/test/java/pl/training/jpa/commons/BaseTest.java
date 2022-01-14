@@ -2,16 +2,23 @@ package pl.training.jpa.commons;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
+import lombok.SneakyThrows;
+import lombok.extern.java.Log;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.AfterAll;
 import org.slf4j.LoggerFactory;
+import pl.training.jpa.TestTask;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
+@Log
 public class BaseTest {
 
     protected final static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("training-hibernate-unit");
@@ -36,6 +43,20 @@ public class BaseTest {
         } finally {
             entityManager.close();
         }
+    }
+
+    @SneakyThrows
+    protected void execute(List<TestTask> tasks) {
+        var userCount = tasks.size();
+        var countDownLatch = new CountDownLatch(userCount);
+        var executor = Executors.newFixedThreadPool(userCount);
+        tasks.forEach(testTask -> {
+            testTask.setEntityManager(entityManagerFactory.createEntityManager());
+            testTask.setCountDownLatch(countDownLatch);
+            executor.execute(testTask);
+        });
+        countDownLatch.await();
+        log.info("Completed");
     }
 
     @AfterAll
