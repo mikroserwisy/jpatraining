@@ -1,8 +1,11 @@
 package pl.training.jpa.commons;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Slf4jReporter;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.AfterAll;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -13,8 +16,14 @@ public class BaseTest {
 
     protected final static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("training-hibernate-unit");
     protected final Statistics statistics = entityManagerFactory.unwrap(SessionFactory.class).getStatistics();
+    protected final MetricRegistry metricRegistry = new MetricRegistry();
+    protected final Slf4jReporter reporter = Slf4jReporter
+            .forRegistry(metricRegistry)
+            .outputTo(LoggerFactory.getLogger(getClass()))
+            .build();
 
     protected void withTransaction(Consumer<EntityManager> task) {
+        System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE");
         var entityManager = entityManagerFactory.createEntityManager();
         var transaction = entityManager.getTransaction();
         transaction.begin();

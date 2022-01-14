@@ -8,6 +8,7 @@ import pl.training.jpa.commons.BaseTest;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,6 +17,8 @@ import static pl.training.jpa.Post.GET_ALL_EAGER;
 
 @Log
 public class EntityManagerTests extends BaseTest {
+
+    private static final long SAMPLES = 10;
 
     private final Comment firstComment = new Comment();
     private final Comment secondComment = new Comment();
@@ -142,5 +145,20 @@ public class EntityManagerTests extends BaseTest {
         });
         assertEquals(3, statistics.getEntityLoadCount());
     }
+
+    @Test
+    void should_return_metrics_for_adding_payments_in_single_transaction() {
+        var timer = metricRegistry.timer(getClass().getName());
+        var startTime = System.nanoTime();
+        withTransaction(entityManager -> {
+            for (long sample = 1; sample <= SAMPLES; sample++) {
+                var payment = Fixtures.payment(1_000L);
+                entityManager.persist(payment);
+            }
+        });
+        timer.update(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
+        reporter.report();
+    }
+
 
 }
