@@ -4,7 +4,7 @@
     <persistence-unit-metadata>
         <persistence-unit-defaults>
             <entity-listeners>
-                <entity-listener class="pl.training.jpa.DefaultListener">
+                <entity-listener class="pl.training.jpa.commons.DefaultListener">
                     <pre-persist method-name="prePersist"/>
                 </entity-listener>
             </entity-listeners>

@@ -1,4 +1,4 @@
-package pl.training.jpa;
+package pl.training.jpa.commons;
 
 import lombok.extern.java.Log;
 

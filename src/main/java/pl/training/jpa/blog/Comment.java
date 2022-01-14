@@ -1,6 +1,7 @@
-package pl.training.jpa;
+package pl.training.jpa.blog;
 
 import lombok.Data;
+import pl.training.jpa.commons.Identifiable;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

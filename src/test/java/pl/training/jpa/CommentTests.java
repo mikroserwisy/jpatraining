@@ -1,5 +1,6 @@
 package pl.training.jpa;
 
+import pl.training.jpa.blog.Comment;
 import pl.training.jpa.commons.EntityTest;
 
 public class CommentTests extends EntityTest<Comment> {

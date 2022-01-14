@@ -1,0 +1,43 @@
+Funkcjonalności:
+
+- dodawanie szkolenia
+- pobieranie szkolenia po slug
+- pobieranie kolekcji szkoleń
+
+Model:
+
+Training
+- code: Text
+- title: Text
+- slug: Text
+- authors: [Person]
+- tags: [Tag]
+- type: STATIONARY, ELEARNING
+- duration: Duration
+- difficulty: BASIC, INTERMEDIATE, ADVANCED
+- description: Text
+- modules: [Module]
+
+Tag
+- name: Text
+
+Person
+- firstName: Text
+- lastName: Text
+- email: [Text]
+
+Duration
+- value: Number
+- unit: SECONDS, MINUTES, HOURS, WEEKS, MONTHS
+
+Module
+- title: Text
+- description: Text
+- duration: Duration
+- submodules: [Module]
+
+TrainingsCollection
+- name: Text
+- description: Text
+- slug: Text auto
+- trainings: [Training]

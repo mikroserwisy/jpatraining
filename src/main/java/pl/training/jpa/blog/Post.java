@@ -1,4 +1,4 @@
-package pl.training.jpa;
+package pl.training.jpa.blog;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -3,7 +3,6 @@ package pl.training.jpa.commons;
 import org.hibernate.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.training.jpa.Identifiable;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;

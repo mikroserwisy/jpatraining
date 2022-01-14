@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import lombok.*;
 import org.javamoney.moneta.FastMoney;
+import pl.training.jpa.commons.FastMoneyConverter;
 
 @Table(name = "PAYMENTS")
 @Entity

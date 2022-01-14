@@ -1,5 +1,7 @@
 package pl.training.jpa;
 
+import pl.training.jpa.commons.LocalMoney;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;

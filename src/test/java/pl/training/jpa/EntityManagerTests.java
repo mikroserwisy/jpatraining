@@ -4,7 +4,10 @@ import lombok.extern.java.Log;
 import org.hibernate.LazyInitializationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import pl.training.jpa.blog.Comment;
+import pl.training.jpa.blog.Post;
 import pl.training.jpa.commons.BaseTest;
+import pl.training.jpa.commons.LocalMoney;
 
 import javax.persistence.LockModeType;
 import java.util.List;
@@ -14,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static pl.training.jpa.Fixtures.*;
-import static pl.training.jpa.Post.GET_ALL_EAGER;
+import static pl.training.jpa.blog.Post.GET_ALL_EAGER;
 
 @Log
 public class EntityManagerTests extends BaseTest {
