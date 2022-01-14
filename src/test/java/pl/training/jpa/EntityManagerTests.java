@@ -18,7 +18,7 @@ import static pl.training.jpa.Post.GET_ALL_EAGER;
 @Log
 public class EntityManagerTests extends BaseTest {
 
-    private static final long SAMPLES = 10;
+    private static final long SAMPLES = 10_000;
 
     private final Comment firstComment = new Comment();
     private final Comment secondComment = new Comment();
@@ -148,7 +148,6 @@ public class EntityManagerTests extends BaseTest {
 
     @Test
     void should_return_metrics_for_adding_payments_in_single_transaction() {
-        var timer = metricRegistry.timer(getClass().getName());
         var startTime = System.nanoTime();
         withTransaction(entityManager -> {
             for (long sample = 1; sample <= SAMPLES; sample++) {
@@ -156,9 +155,22 @@ public class EntityManagerTests extends BaseTest {
                 entityManager.persist(payment);
             }
         });
-        timer.update(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
-        reporter.report();
+        log.info("Time: " + ((System.nanoTime() - startTime) / 1_000.0)); // 1.91023565E7
     }
+
+    @Test
+    void should_return_metrics_for_adding_payments_in_many_transaction() {
+        var startTime = System.nanoTime();
+        for (long sample = 1; sample <= SAMPLES; sample++) {
+            withTransaction(entityManager -> {
+                var payment = Fixtures.payment(1_000L);
+                entityManager.persist(payment);
+            });
+        }
+        log.info("Time: " + ((System.nanoTime() - startTime) / 1_000.0)); // 3.503541425E7
+    }
+
+
 
 
 }
