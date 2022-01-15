@@ -89,8 +89,6 @@ public class Application {
             // zwróć nazwiska autorów i liczbę ich szkoleń, weź pod uwagę autorów, którzy stworzyli min. 2 szkolenia
 
 
-            // zwróć nazwiska autorów i liczbę ich szkoleń, weź pod uwagę autorów, którzy stworzyli min. 2 szkolenia
-
 
             // ----------------------------------------------------
 
