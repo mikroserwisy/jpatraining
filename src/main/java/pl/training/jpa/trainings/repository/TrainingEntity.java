@@ -33,6 +33,7 @@ public class TrainingEntity {
     private Difficulty difficulty;
     @Column(length = 4096)
     private String description;
+    @JoinColumn(name = "TRAINING_ID")
     @OneToMany
     private List<ModuleEntity> modules;
 
