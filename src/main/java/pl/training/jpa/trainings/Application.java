@@ -1,5 +1,6 @@
 package pl.training.jpa.trainings;
 
+import com.speedment.jpastreamer.application.JPAStreamer;
 import lombok.extern.java.Log;
 import pl.training.jpa.commons.TransactionTemplate;
 import pl.training.jpa.trainings.repository.*;
@@ -188,7 +189,7 @@ public class Application {
 
         log.info("#####################################################################################################");
 
-        result.forEach(tuple -> log.info(tuple.get(0) + " ," + tuple.get(1)));
+       // result.forEach(tuple -> log.info(tuple.get(0) + " ," + tuple.get(1)));
         //result.forEach(training -> log.info(training.getTitle()));
         //var arrays = (List<Object[]>) result;
         //arrays.forEach(objects -> log.info(Arrays.toString(objects)));
