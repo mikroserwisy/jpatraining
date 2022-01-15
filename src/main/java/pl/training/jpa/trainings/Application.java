@@ -57,10 +57,29 @@ public class Application {
             entityManager.persist(secondAuthor);
             entityManager.persist(firstTraining);
 
+            log.info("##############################################################################################");
+            return null;
+        });
+
+        transactionTemplate.withTransaction(entityManager -> {
+            // zwróć listę szkoleń, zapewnij stronicowanie
+            var pageNumber = 0;
+            var pageSize = 10;
+            var query1 =  entityManager.createQuery("select t from Training t", TrainingEntity.class)
+                    .setFirstResult(pageNumber * pageSize)
+                    .setMaxResults(pageSize);
+
+            // zwróć listę kodów i tytułów (warianty: przez pola, przez wyrażenie konstruktorowe)
+            var query2 =  entityManager.createQuery("select t.code, t.title from Training t");
+            var query3 =  entityManager.createQuery("select new pl.training.jpa.trainings.repository.TrainingView(t.code, t.title) from Training t", TrainingView.class);
+
             // ----------------------------------------------------
+
+            log.info(query1.getResultList().toString());
 
             return null;
         });
+
     }
 
     public static String getNextId() {
