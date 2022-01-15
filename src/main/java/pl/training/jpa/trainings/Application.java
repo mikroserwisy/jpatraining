@@ -137,25 +137,58 @@ public class Application {
 
             var query4 = entityManager.createQuery("select t from Training t join t.tags tag where tag.name in ('java', 'oop') group by t.id having count(t.id) = 2 order by t.code", TrainingEntity.class);
 
+            var cq5 = criteriaBuilder.createQuery(TrainingEntity.class);
+            var trainingsRoot7 = cq5.from(TrainingEntity.class);
+            var trainingsRoot8 = trainingsRoot7.<TrainingEntity, TagEntity>join("tags");
+            cq5.select(trainingsRoot7)
+                    .where(trainingsRoot8.get("name").in("java", "oop"))
+                    .groupBy(trainingsRoot7.get("id"))
+                    .having(criteriaBuilder.equal(criteriaBuilder.count(trainingsRoot7.get("id")), 2))
+                    .orderBy(criteriaBuilder.asc(trainingsRoot7.get("code")));
+            var query6cb = entityManager.createQuery(cq5);
+
             // zwróć listę szkoleń trwających od 10 do 15 godzin
             var query5 = entityManager.createQuery("select t from Training t where t.duration.unit = 2 and t.duration.value >= :minHours and t.duration.value <= :maxHours", TrainingEntity.class)
                     .setParameter("minHours", 10L)
                     .setParameter("maxHours", 15L);
 
+            var cq6 = criteriaBuilder.createQuery(TrainingEntity.class);
+            var trainingsRoot9 = cq6.from(TrainingEntity.class);
+            cq6.select(trainingsRoot9)
+                    .where(criteriaBuilder.and(
+                            criteriaBuilder.between(trainingsRoot9.get("duration").get("value"), 10L, 15L),
+                            criteriaBuilder.equal(trainingsRoot9.get("duration").get("unit"), 2)
+                    ));
+            var query7cb = entityManager.createQuery(cq6);
+
             // zwróć listę szkoleń o poziomie trudności BASIC lub ADVANCED, użyj operatora IN
             var query6 = entityManager.createQuery("select t from Training t where t.difficulty in (0, 2)", TrainingEntity.class);
+
+            var cq7 = criteriaBuilder.createQuery(TrainingEntity.class);
+            var trainingsRoot10 = cq7.from(TrainingEntity.class);
+            cq7.select(trainingsRoot10)
+                    .where(trainingsRoot9.get("difficulty").in(0, 2));
+            var query8cb = entityManager.createQuery(cq7);
 
             // zwróć nazwiska autorów i liczbę ich szkoleń, weź pod uwagę autorów, którzy stworzyli min. 2 szkolenia
             var query7 = entityManager.createQuery("select a.lastName, count (t) from Training t join t.authors a group by a having count(t) > 1");
 
+            var cq8 = criteriaBuilder.createTupleQuery();
+            var trainingsRoot11 = cq8.from(TrainingEntity.class);
+            var trainingsRoot12 = trainingsRoot11.<TrainingEntity, PersonEntity>join("authors");
+            cq8.multiselect(trainingsRoot12.get("lastName"), criteriaBuilder.count(trainingsRoot11.get("id")))
+                    .groupBy(trainingsRoot12)
+                    .having(criteriaBuilder.greaterThan(criteriaBuilder.count(trainingsRoot11.get("id")), 1L));
+            var query9cb = entityManager.createQuery(cq8);
+
             // ----------------------------------------------------
 
-            return query5cb.getResultList();
+            return query9cb.getResultList();
         });
 
         log.info("#####################################################################################################");
 
-        result.forEach(tuple -> log.info(tuple.get("lastName") + " ," + tuple.get("title")));
+        result.forEach(tuple -> log.info(tuple.get(0) + " ," + tuple.get(1)));
         //result.forEach(training -> log.info(training.getTitle()));
         //var arrays = (List<Object[]>) result;
         //arrays.forEach(objects -> log.info(Arrays.toString(objects)));
