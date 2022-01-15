@@ -74,8 +74,23 @@ public class Application {
 
             // zwróć listę kodów i tytułów (warianty: przez pola, przez wyrażenie konstruktorowe)
             var query2 =  entityManager.createQuery("select t.code, t.title from Training t");
-
             var query3 =  entityManager.createQuery("select new pl.training.jpa.trainings.repository.TrainingView(t.code, t.title) from Training t", TrainingView.class);
+
+
+            // zwróć listę szkoleń posiadających tagi: java i oop, posortowaną po kodach, użyj złączenia
+
+
+            // zwróć listę szkoleń trwających od 10 do 15 godzin
+
+
+            // zwróć listę szkoleń o poziomie trudności BASIC i ADVANCED, użyj operatora IN
+
+
+            // zwróć nazwiska autorów i liczbę ich szkoleń, weź pod uwagę autorów, którzy stworzyli min. 2 szkolenia
+
+
+            // zwróć nazwiska autorów i liczbę ich szkoleń, weź pod uwagę autorów, którzy stworzyli min. 2 szkolenia
+
 
             // ----------------------------------------------------
 
