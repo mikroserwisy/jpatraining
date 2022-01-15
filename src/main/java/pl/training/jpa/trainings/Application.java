@@ -77,6 +77,8 @@ public class Application {
 
         var result = new TransactionTemplate(entityManagerFactory.createEntityManager()).withTransaction(entityManager -> {
 
+            var criteriaBuilder = entityManager.getCriteriaBuilder();
+
             // zwróć listę szkoleń, zapewnij stronicowanie
             var pageNumber = 0;
             var pageSize = 10;
@@ -85,12 +87,53 @@ public class Application {
                     .setFirstResult(pageNumber * pageSize)
                     .setMaxResults(pageSize);
 
+            var cq1 = criteriaBuilder.createQuery(TrainingEntity.class);
+            var trainingsRoot = cq1.from(TrainingEntity.class);
+            cq1.select(trainingsRoot);
+            var query1cb = entityManager.createQuery(cq1)
+                    .setHint("javax.persistence.fetchgraph",  entityManager.getEntityGraph(TrainingEntity.EAGER))
+                    .setFirstResult(pageNumber * pageSize)
+                    .setMaxResults(pageSize);
+
+
+            // select t from Training t where t.title = 'Programming in C++'
+            var cq1b = criteriaBuilder.createQuery(TrainingEntity.class);
+            var trainingsRoot2 = cq1b.from(TrainingEntity.class);
+            var title = trainingsRoot2.<String>get("title");
+            var expectedTitle = "Programming in C++";
+            cq1b.select(trainingsRoot2)
+                    .where(criteriaBuilder.equal(title, expectedTitle));
+            var query2cb = entityManager.createQuery(cq1b);
+
+
             // zwróć listę kodów i tytułów (warianty: przez pola, przez wyrażenie konstruktorowe)
             var query2 =  entityManager.createQuery("select t.code, t.title from Training t");
+
+           /* var cq2 = criteriaBuilder.createQuery(Object[].class);
+            var trainingsRoot3 = cq2.from(TrainingEntity.class);
+            cq2.multiselect(trainingsRoot3.get("code"), trainingsRoot3.get("title"));
+            var query3cb = entityManager.createQuery(cq2);*/
+
+            var cq2 = criteriaBuilder.createTupleQuery();
+            var trainingsRoot3 = cq2.from(TrainingEntity.class);
+            cq2.multiselect(trainingsRoot3.get("code").alias("trainingCode"), trainingsRoot3.get("title"));
+            var query3cb = entityManager.createQuery(cq2);
+
             var query3 =  entityManager.createQuery("select new pl.training.jpa.trainings.repository.TrainingView(t.code, t.title) from Training t", TrainingView.class);
 
-            // zwróć listę szkoleń posiadających tagi: java i oop, posortowaną po kodach, użyj złączenia
+            var cq3 = criteriaBuilder.createQuery(TrainingView.class);
+            var trainingsRoot4 = cq3.from(TrainingEntity.class);
+            cq3.select(criteriaBuilder.construct(TrainingView.class, trainingsRoot4.get("code"), trainingsRoot4.get("title")));
+            var query4cb = entityManager.createQuery(cq3);
 
+            // select a.lastName, t.title from Training t join t.authors a
+            var cq4 = criteriaBuilder.createTupleQuery();
+            var trainingsRoot5 = cq4.from(TrainingEntity.class);
+            var trainingsRoot6 = trainingsRoot5.<TrainingEntity, PersonEntity>join("authors");
+            cq4.multiselect(trainingsRoot6.get("lastName").alias("lastName"), trainingsRoot5.get("title").alias("title"));
+            var query5cb = entityManager.createQuery(cq4);
+
+            // zwróć listę szkoleń posiadających tagi: java i oop, posortowaną po kodach, użyj złączenia
 
             var query4 = entityManager.createQuery("select t from Training t join t.tags tag where tag.name in ('java', 'oop') group by t.id having count(t.id) = 2 order by t.code", TrainingEntity.class);
 
@@ -107,13 +150,15 @@ public class Application {
 
             // ----------------------------------------------------
 
-            return query7.getResultList();
+            return query5cb.getResultList();
         });
 
         log.info("#####################################################################################################");
-         //result.forEach(training -> log.info(training.getTitle()));
-        var arrays = (List<Object[]>) result;
-        arrays.forEach(objects -> log.info(Arrays.toString(objects)));
+
+        result.forEach(tuple -> log.info(tuple.get("lastName") + " ," + tuple.get("title")));
+        //result.forEach(training -> log.info(training.getTitle()));
+        //var arrays = (List<Object[]>) result;
+        //arrays.forEach(objects -> log.info(Arrays.toString(objects)));
 
 
     }
