@@ -7,10 +7,17 @@ import javax.persistence.*;
 import java.util.List;
 import java.util.Set;
 
+@NamedEntityGraph(name = TrainingEntity.EAGER, attributeNodes = {
+        @NamedAttributeNode("authors"),
+        @NamedAttributeNode("tags"),
+        @NamedAttributeNode("modules"),
+})
 @EqualsAndHashCode(of = "id")
 @Data
 @Entity(name = "Training")
 public class TrainingEntity {
+
+    public static final String EAGER = "training_eager";
 
     @Id
     private String id;
@@ -35,7 +42,7 @@ public class TrainingEntity {
     private String description;
     @JoinColumn(name = "TRAINING_ID")
     @OneToMany
-    private List<ModuleEntity> modules;
+    private Set<ModuleEntity> modules;
 
 
     @PrePersist

@@ -20,6 +20,8 @@ public class TransactionTemplate {
         } catch (RuntimeException exception) {
             transaction.rollback();
             throw exception;
+        } finally {
+            entityManager.close();
         }
     }
 
